@@ -1,20 +1,20 @@
 defmodule Whithat.Bvid do
-	@moduledoc """
-  BiliBili's Bvid Parser
-	"""
+  @moduledoc """
+   BiliBili's Bvid Parser
+  """
 
-	@doc """
-	Parse Aid to Bvid
+  @doc """
+  Parse Aid to Bvid
 
-	## Examples
+  ## Examples
 
-			iex> Whithat.Bvid.encode(67719840)
-			"BV1PJ411A727"
-			iex> Whithat.Bvid.encode(795519616)
-			"BV1kC4y1W71T"
+  		iex> Whithat.Bvid.encode(67719840)
+  		"BV1PJ411A727"
+  		iex> Whithat.Bvid.encode(795519616)
+  		"BV1kC4y1W71T"
 
-	"""
-  @spec encode(integer()) :: :error | <<_::16, _::_*8>>
+  """
+  @spec encode(integer()) :: :error | <<_::96>>
   def encode(aid) do
     for i <- 0..5, into: %{} do
       [11, 10, 3, 8, 4, 6]
@@ -86,6 +86,51 @@ defmodule Whithat.Bvid do
                 |> Kernel.<>(result)
             end
         end
+    end
+  end
+
+	@doc """
+  Parse Bvid to Aid
+
+  ## Examples
+
+  		iex> Whithat.Bvid.decode("BV1PJ411A727")
+  		67719840
+  		iex> Whithat.Bvid.decode("BV1kC4y1W71T")
+  		795519616
+
+  """
+  @spec decode(<<_::96>>) :: :error | integer()
+  def decode(bvid) do
+    for n <- 0..57, into: %{} do
+      "fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
+      |> String.at(n)
+      |> case do
+        value -> {value, n}
+      end
+    end
+    |> case do
+      tr ->
+        0..5
+        |> Enum.map(fn i ->
+          [11, 10, 3, 8, 4, 6]
+          |> Enum.fetch(i)
+          |> case do
+            {:ok, item} ->
+              tr
+              |> Access.get(
+                bvid
+                |> String.at(item)
+              )
+              |> Kernel.*(
+                :math.pow(58, i)
+                |> floor
+              )
+          end
+        end)
+        |> Enum.sum()
+        |> Kernel.-(8_728_348_608)
+        |> Bitwise.bxor(177_451_812)
     end
   end
 end

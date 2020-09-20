@@ -13,4 +13,9 @@ defmodule WhithatTest do
     assert Whithat.Bvid.encode(795519616) == "BV1kC4y1W71T"
   end
 
+  test "Bvid Decode" do
+    assert Whithat.Bvid.decode("BV1PJ411A727") == 67719840
+    assert Whithat.Bvid.decode("BV1kC4y1W71T") == 795519616
+  end
+
 end
