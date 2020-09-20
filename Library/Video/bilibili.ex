@@ -111,7 +111,4 @@ defmodule Whithat.Video.BiliBili do
   @spec getLinks(integer() | binary(), integer() | binary(), integer() | binary(), binary()) ::
           :error | [binary()]
   def getLinks(aid, cid, quality, sessdata), do: get_links(aid, cid, quality, sessdata)
-  
-  
-
 end

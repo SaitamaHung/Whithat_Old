@@ -16,15 +16,8 @@ defmodule Whithat do
 		:world
 	end
 
-	@doc """
-	Get the atom.
+	def main(args \\ [])
+	def main(args) when is_list(args) do
 
-	## Examples
-
-			iex> Whithat.test("a")
-			:a
-
-	"""
-	@spec test(binary()) :: atom()
-	def test(string) when is_binary(string),do: string |> String.to_atom()
+	end
 end
