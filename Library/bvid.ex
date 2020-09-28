@@ -15,7 +15,7 @@ defmodule Whithat.Bvid do
 
   """
   @spec encode(integer()) :: :error | <<_::96>>
-  def encode(aid) do
+  def encode(aid) when is_integer(aid) do
     for i <- 0..5, into: %{} do
       [11, 10, 3, 8, 4, 6]
       |> Enum.fetch(i)
@@ -101,7 +101,7 @@ defmodule Whithat.Bvid do
 
   """
   @spec decode(<<_::96>>) :: :error | integer()
-  def decode(bvid) do
+  def decode(bvid) when is_binary(bvid) do
     for n <- 0..57, into: %{} do
       "fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
       |> String.at(n)
