@@ -14,7 +14,7 @@ defmodule Whithat.Bvid do
   		"BV1kC4y1W71T"
 
   """
-  @spec encode(integer()) :: :error | <<_::96>>
+  @spec encode(integer()) :: :error | <<_::16, _::_*8>>
   def encode(aid) when is_integer(aid) do
     for i <- 0..5, into: %{} do
       [11, 10, 3, 8, 4, 6]
@@ -89,7 +89,7 @@ defmodule Whithat.Bvid do
     end
   end
 
-	@doc """
+  @doc """
   Parse Bvid to Aid
 
   ## Examples
@@ -100,7 +100,7 @@ defmodule Whithat.Bvid do
   		795519616
 
   """
-  @spec decode(<<_::96>>) :: :error | integer()
+  @spec decode(<<_::16, _::_*8>>) :: :error | integer()
   def decode(bvid) when is_binary(bvid) do
     for n <- 0..57, into: %{} do
       "fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
