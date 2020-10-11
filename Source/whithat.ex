@@ -30,10 +30,10 @@ defmodule Whithat do
         |> Regex.match?(item)
         |> case do
           true ->
-            Whithat.Bvid.decode(item)
+            {item |> Whithat.Bvid.decode(), item}
 
           false ->
-            item
+            {item, item |> String.to_integer() |> Whithat.Bvid.encode()}
         end
 
       :error ->
@@ -43,7 +43,7 @@ defmodule Whithat do
       {:error, _} ->
         1
 
-      aid ->
+      {aid, bvid} ->
         args
         |> Enum.fetch(1)
         |> case do
@@ -57,37 +57,61 @@ defmodule Whithat do
                 pages
                 |> case do
                   [head | []] ->
-                    IO.puts(
-                      "Aid: #{aid}  Bvid: #{Whithat.Bvid.encode(aid)}  Cid: #{
-                        head |> Access.get("cid")
-                      }"
-                    )
+                    head
+                    |> Access.get("cid")
+                    |> case do
+                      cid ->
+                        IO.puts("Aid: #{aid}  Bvid: #{bvid}  Cid: #{cid}")
+                        head
+                    end
 
                   [_ | _] ->
-                    IO.puts("Aid: #{aid}  Bvid: #{Whithat.Bvid.encode(aid)}")
+                    IO.puts("Aid: #{aid}  Bvid: #{bvid}")
                     IO.puts("Pages:")
 
-                    pages
-                    |> Enum.each(fn item ->
-                      IO.puts("-- #{item["part"]}  Cid: #{item["cid"]}")
-                    end)
-                end
-
-                IO.puts(
-                  "Quality: #{
-                    item
+                    args
+                    |> Enum.fetch(2)
                     |> case do
-                      116 -> "1080P60"
-                      112 -> "1080P+"
-                      80 -> "1080P"
-                      64 -> "720P"
-                      32 -> "480P"
-                      16 -> "360P"
-                    end
-                  }"
-								)
+                      {:ok, enum} ->
+                        enum
 
-								args
+                      :error ->
+                        "1-#{
+                          pages
+                          |> :erlang.length()
+                        }"
+                    end
+                    |> Theaserialzer.decode()
+                    |> case do
+                      enum ->
+                        pages
+                        |> Whithat.Enum.filter_with_index(fn item, i ->
+                          IO.puts(
+                            "-- #{item["part"]}  Cid: #{item["cid"]}" <>
+                              if((i + 1) in enum, do: " √", else: "")
+                          )
+
+                          (i + 1) in enum
+                        end)
+                    end
+                end
+                |> case do
+                  down ->
+                    IO.puts(
+                      "Quality: #{
+                        item
+                        |> case do
+                          116 -> "1080P60"
+                          112 -> "1080P+"
+                          80 -> "1080P"
+                          64 -> "720P"
+                          32 -> "480P"
+                          16 -> "360P"
+                        end
+                      }"
+										)
+										down
+                end
             end
 
           :error ->
