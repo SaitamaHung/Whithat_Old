@@ -244,25 +244,29 @@ defmodule Whithat.Video.BiliBili do
 						]
 	def getInfo(aid), do: get_info(aid)
 
-
 	@doc """
 	Get Video's Cover
 
 	Note: From the pages.
 	"""
 	@spec get_cover(:aid | :bvid, binary()) :: :error | binary()
-	def get_cover(atom,number) do
+	def get_cover(atom, number) do
 		atom
 		|> case do
 			:aid ->
 				"https://www.bilibili.com/video/av#{number}"
+
 			:bvid ->
 				"https://www.bilibili.com/video/#{number}"
+
 			_ ->
 				"https://www.bilibili.com/video/#{number}"
 		end
 		|> HTTPoison.get(
-			["User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:80.0) Gecko/20100101 Firefox/80.0"],
+			[
+				"User-Agent":
+					"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:80.0) Gecko/20100101 Firefox/80.0"
+			],
 			ssl: [{:versions, [:"tlsv1.2", :"tlsv1.1", :tlsv1]}]
 		)
 		|> case do
@@ -270,7 +274,7 @@ defmodule Whithat.Video.BiliBili do
 				~r/<script>window.__INITIAL_STATE__=(?<html>.*?);.+<\/script>/
 				|> Regex.named_captures(
 					body
-					|> :zlib.gunzip
+					|> :zlib.gunzip()
 				)
 				|> Access.get("html")
 				|> Jason.decode()
@@ -280,15 +284,20 @@ defmodule Whithat.Video.BiliBili do
 						|> Access.get("videoData")
 						|> Access.get("pic")
 						|> HTTPoison.get(
-							["User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:80.0) Gecko/20100101 Firefox/80.0"],
+							[
+								"User-Agent":
+									"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:80.0) Gecko/20100101 Firefox/80.0"
+							],
 							ssl: [{:versions, [:"tlsv1.2", :"tlsv1.1", :tlsv1]}]
 						)
 						|> case do
 							{:ok, %HTTPoison.Response{body: body}} -> body
 						end
+
 					{:error, %Jason.DecodeError{}} ->
 						:error
 				end
+
 			{:error, %HTTPoison.Error{}} ->
 				:error
 		end
@@ -300,5 +309,5 @@ defmodule Whithat.Video.BiliBili do
 	Note: From the pages.
 	"""
 	@spec getCover(:aid | :bvid, binary()) :: :error | binary()
-	def getCover(atom, number),do: get_cover(atom, number)
+	def getCover(atom, number), do: get_cover(atom, number)
 end

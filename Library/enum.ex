@@ -32,9 +32,30 @@ defmodule Whithat.Enum do
 							|> case do
 								{:ok, item} -> item
 								_ -> :error
-							end
+							end,
+							i
 						),
 						do: enumerable |> Enum.fetch!(i)
+		end
+	end
+
+	def each_with_index(enumerable, fun) do
+		enumerable
+		|> :erlang.length()
+		|> case do
+			len ->
+				0..(len - 1)
+				|> Enum.each(fn i ->
+					fun.(
+						enumerable
+						|> Enum.fetch(i)
+						|> case do
+							{:ok, item} -> item
+							_ -> :error
+						end,
+						i
+					)
+				end)
 		end
 	end
 end
