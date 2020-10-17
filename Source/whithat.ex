@@ -128,8 +128,8 @@ defmodule Whithat do
 					|> Enum.with_index
 					|> Enum.each(fn {item, i} ->
 						item
-						|> streamDownload(aid, title)
-						|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")} \##{i}.flv"))
+						|> streamDownload(aid, title <> " \##{i+1}.flv")
+						|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")} \##{i+1}.flv"))
 						|> Stream.run()
 					end)
 			end
@@ -250,7 +250,7 @@ defmodule Whithat do
 													|> Enum.join(",")
 													|> case do
 														pages ->
-															IO.puts("Now Going to Download: #{pages}")
+															IO.puts("Going to Download: #{pages}")
 													end
 
 													parts
@@ -273,11 +273,16 @@ defmodule Whithat do
 													end
 											end
 											|> case do
-												{links, subtitle} ->
-													download(links, aid, title, subtitle)
+												mono ->
+													IO.puts(IO.ANSI.light_blue <> "Now Starting Downloading." <> IO.ANSI.default_color)
+													mono
+													|> case do
+														{links, subtitle} ->
+															download(links, aid, title, subtitle)
 
-												links ->
-													download(links, aid, title)
+														links ->
+															download(links, aid, title)
+													end
 											end
 
 											IO.puts("Downloaded Done!")

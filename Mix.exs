@@ -18,6 +18,7 @@ defmodule Whithat.MixProject do
 			lockfile: "Mix.lock",
 			start_permanent: Mix.env() == :prod,
 			deps: deps(),
+			#compilers: [:make, :elixir, :app],
 			escript: escript()
 		]
 	end
@@ -45,3 +46,22 @@ defmodule Whithat.MixProject do
 		[main_module: Whithat.CLI]
 	end
 end
+
+defmodule Mix.Tasks.Compile.Make do
+	def run(_) do
+		System.cmd("clang", [
+			"-undefined",
+			"dynamic_lookup",
+			"-dynamiclib",
+			"Source/whithat.c",
+			"-o",
+			"Source/whithat.so",
+			"-I",
+			Whithat.Config.erl_path,
+			"-lm"
+		], stderr_to_stdout: true)
+		System.cmd("mix", ["compile.erlang"], stderr_to_stdout: true)
+		:ok
+	end
+end
+
