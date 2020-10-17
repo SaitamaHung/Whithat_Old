@@ -11,10 +11,13 @@
 - Erlang/otp >= 22 （没测试过22以下的版本/-/）
 - Elixir >= 1.10.4（同上，也没测试过/-/）
 
+#### 通过Escript
+
 ```
 mix deps.get
-mix deps.conpile
+mix deps.compile
 mix escript.build
+mix escript.install
 ```
 
 ## 用法
@@ -71,27 +74,3 @@ Pages: 多P视频的页码。
 说是个组织，结果各种问题之后，还是只有我一个人/-/
 
 行吧，一个人就一个人，这样也好（bushi）
-
----
-
-> 以下为mix生成自带
-
-**TODO: Add description**
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `whithat` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:whithat, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/whithat](https://hexdocs.pm/whithat).
-
