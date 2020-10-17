@@ -38,9 +38,9 @@ Quality: 视频画质。
   
 Pages: 多P视频的页码。
 
-请替换Source/Config.ex中```def sessdata,do: "Put Your Sessdata Here"```后面的```"Put Your Sessdata Here"```替换成自己账号的Sessdata
-
 格式：1,2,3,4-6 -> [1,2,3,4,5,6]
+
+请替换Source/Config.ex中```def sessdata,do: "Put Your Sessdata Here"```后面的```"Put Your Sessdata Here"```替换成自己账号的Sessdata
 
 ## 目标
 
