@@ -8,6 +8,9 @@
 
 ## 编译
 
+- Erlang/otp >= 22 （没测试过22以下的版本/-/）
+- Elixir >= 1.10.4（同上，也没测试过/-/）
+
 ```
 mix deps.get
 mix deps.conpile
@@ -34,6 +37,8 @@ Quality: 视频画质。
 - 16 -> 360P
   
 Pages: 多P视频的页码。
+
+请替换Source/Config.ex中```def sessdata,do: "Put Your Sessdata Here"```后面的```"Put Your Sessdata Here"```替换成自己账号的Sessdata
 
 格式：1,2,3,4-6 -> [1,2,3,4,5,6]
 
