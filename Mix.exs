@@ -45,22 +45,3 @@ defmodule Whithat.MixProject do
 		[main_module: Whithat.CLI]
 	end
 end
-
-defmodule Mix.Tasks.Compile.Make do
-	def run(_) do
-		System.cmd("clang", [
-			"-undefined",
-			"dynamic_lookup",
-			"-dynamiclib",
-			"Source/whithat.c",
-			"-o",
-			"Source/whithat.so",
-			"-I",
-			Whithat.Config.erl_path,
-			"-lm"
-		], stderr_to_stdout: true)
-		System.cmd("mix", ["compile.erlang"], stderr_to_stdout: true)
-		:ok
-	end
-end
-

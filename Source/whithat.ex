@@ -1,3 +1,11 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# This File if From Theopse (Self@theopse.org)
+# Licensed under BSD-2-Caluse
+# File:	whithat.ex (Whithat/Source/whithat.ex)
+# Content:	Whithat's Main(CLI) Source
+# Copyright (c) 2020 Theopse Organization All rights reserved
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
 defmodule Whithat do
 	defmodule CLI do
 		@moduledoc """
@@ -125,11 +133,11 @@ defmodule Whithat do
 
 				links ->
 					links
-					|> Enum.with_index
+					|> Enum.with_index()
 					|> Enum.each(fn {item, i} ->
 						item
-						|> streamDownload(aid, title <> " \##{i+1}.flv")
-						|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")} \##{i+1}.flv"))
+						|> streamDownload(aid, title <> " \##{i + 1}.flv")
+						|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")} \##{i + 1}.flv"))
 						|> Stream.run()
 					end)
 			end
@@ -204,7 +212,7 @@ defmodule Whithat do
 											|> case do
 												enum ->
 													pages
-													|> Enum.with_index
+													|> Enum.with_index()
 													|> Enum.filter(fn {item, i} ->
 														IO.puts(
 															"-- #{item["part"]}  Cid: #{item["cid"]}" <>
@@ -274,8 +282,20 @@ defmodule Whithat do
 											end
 											|> case do
 												mono ->
-													IO.puts(IO.ANSI.light_blue <> "Now Starting Downloading." <> IO.ANSI.default_color)
-													#ProgressBar.render(1,1)
+													# IO.puts(
+													# 	IO.ANSI.light_blue() <>
+													# 		"Now Starting Downloading." <> IO.ANSI.default_color()
+													# )
+													format = [
+														bar: "=",
+														blank: "=",
+														left: "#{IO.ANSI.light_blue()}=",
+														right: "=#{IO.ANSI.default_color()}",
+														percent: false
+													]
+
+													ProgressBar.render(1, 1, format)
+
 													mono
 													|> case do
 														{links, subtitle} ->
