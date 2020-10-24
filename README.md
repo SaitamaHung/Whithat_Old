@@ -1,7 +1,7 @@
 # Whithat
 
 [![License](https://img.shields.io/github/license/Theopse/Whithat)](https://choosealicense.com/licenses/bsd-2-clause/)
-[![Build Status](https://travis-ci.org/Theopse/Whithat.svg?branch=default)](https://travis-ci.org/Theopse/Whithat)
+[![Build Status](https://travis-ci.org/Theopse/Whithat.svg?branch=Development)](https://travis-ci.org/Theopse/Whithat)
 [![GitHub repo size](https://img.shields.io/github/repo-size/Theopse/Whithat)](https://github.com/Theopse/Whithat)
 
 暂时是个B站视频下载器，使用了[Httpoison](https://github.com/edgurgel/httpoison)
@@ -12,7 +12,7 @@
 
 ## 编译
 
-- Erlang/otp >= 22 （没测试过22以下的版本/-/）
+- Erlang/otp >= 22 （没测试过21以下的版本/-/）
 - Elixir >= 1.10.4（同上，也没测试过/-/）
 
 #### 通过Escript
