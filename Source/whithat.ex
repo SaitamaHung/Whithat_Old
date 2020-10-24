@@ -275,6 +275,7 @@ defmodule Whithat do
 											|> case do
 												mono ->
 													IO.puts(IO.ANSI.light_blue <> "Now Starting Downloading." <> IO.ANSI.default_color)
+													#ProgressBar.render(1,1)
 													mono
 													|> case do
 														{links, subtitle} ->

@@ -15,7 +15,6 @@ defmodule Whithat.MixProject do
 			xref: [exclude: Decimal],
 			build_path: ".Build",
 			deps_path: "Include",
-			lockfile: "Mix.lock",
 			start_permanent: Mix.env() == :prod,
 			deps: deps(),
 			#compilers: [:make, :elixir, :app],
