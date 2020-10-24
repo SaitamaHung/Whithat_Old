@@ -1,3 +1,11 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# This File if From Theopse (Self@theopse.org)
+# Licensed under BSD-2-Caluse
+# File:	bvid.ex (Whithat/Library/bvid.ex)
+# Content:	Bilibili's Bvid Parser
+# Copyright (c) 2020 Theopse Organization All rights reserved
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
 defmodule Whithat.Bvid do
 	@moduledoc """
 	 BiliBili's Bvid Parser
