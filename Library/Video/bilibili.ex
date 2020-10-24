@@ -11,6 +11,22 @@ defmodule Whithat.Video.BiliBili do
 	(Note: It seems not able to work)
 
 	"""
+
+	@type biliInfo :: %{
+		binary() => integer(),
+		binary() => %{
+			binary() => integer(),
+			binary() => integer(),
+			binary() => integer()
+		},
+		binary() => integer(),
+		binary() => binary(),
+		binary() => integer(),
+		binary() => binary(),
+		binary() => binary(),
+		binary() => binary()
+	}
+
 	@spec get_links_in_private(integer() | binary(), integer() | binary(), integer() | binary()) ::
 					[binary()] | :error
 	def get_links_in_private(aid, cid, quality) do
@@ -143,20 +159,7 @@ defmodule Whithat.Video.BiliBili do
 							title: nil | binary(),
 							pages: [
 								nil
-								| %{
-										binary() => integer(),
-										binary() => %{
-											binary() => integer(),
-											binary() => integer(),
-											binary() => integer()
-										},
-										binary() => integer(),
-										binary() => binary(),
-										binary() => integer(),
-										binary() => binary(),
-										binary() => binary(),
-										binary() => binary()
-									}
+								| biliInfo
 							]
 						]
 	def get_info(aid) do

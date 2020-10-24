@@ -1,5 +1,8 @@
 # Whithat
 
+![License](https://img.shields.io/github/license/Theopse/Whithat)
+![GitHub repo size](https://img.shields.io/github/repo-size/Theopse/Whithat)
+
 暂时是个B站视频下载器，使用了[Httpoison](https://github.com/edgurgel/httpoison)
 
 未来考虑成为Elixir中[you-get](https://github.com/soimort/you-get)
