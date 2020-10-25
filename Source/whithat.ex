@@ -149,7 +149,7 @@ defmodule Whithat do
 
 		def main(args) when is_list(args) do
 			args
-			# |> analyze
+			# |> analyze	Before Next Version, Analyze won't be used
 			|> Enum.fetch(0)
 			|> case do
 				{:ok, item} ->
@@ -314,6 +314,12 @@ defmodule Whithat do
 						:error ->
 							1
 					end
+			end
+			|> case do
+				0 -> 0
+				1 ->
+					IO.puts(IO.ANSI.red <> "No Enough Arguments!" <> IO.ANSI.default_color)
+					1
 			end
 			|> System.halt()
 		end
