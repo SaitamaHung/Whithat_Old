@@ -5,13 +5,13 @@ defmodule WhithatTest do
 	doctest Whithat.Video.BiliBili
 
 	test "Bvid Encode" do
-		assert Whithat.Bvid.encode(67_719_840) == "BV1PJ411A727"
-		assert Whithat.Bvid.encode(795_519_616) == "BV1kC4y1W71T"
+		assert Whithat.Bvid.encode(6771_9840) == "BV1PJ411A727"
+		assert Whithat.Bvid.encode(7_9551_9616) == "BV1kC4y1W71T"
 	end
 
 	test "Bvid Decode" do
-		assert Whithat.Bvid.decode("BV1PJ411A727") == 67_719_840
-		assert Whithat.Bvid.decode("BV1kC4y1W71T") == 795_519_616
+		assert Whithat.Bvid.decode("BV1PJ411A727") == 6771_9840
+		assert Whithat.Bvid.decode("BV1kC4y1W71T") == 7_9551_9616
 	end
 
 	test "Bilibili Get Info" do

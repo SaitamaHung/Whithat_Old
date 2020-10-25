@@ -30,8 +30,8 @@ defmodule Whithat.Bvid do
 			|> case do
 				{:ok, item} ->
 					aid
-					|> Bitwise.bxor(177_451_812)
-					|> Kernel.+(8_728_348_608)
+					|> Bitwise.bxor(1_7745_1812)
+					|> Kernel.+(87_2834_8608)
 					|> case do
 						num ->
 							"fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
@@ -137,8 +137,8 @@ defmodule Whithat.Bvid do
 					end
 				end)
 				|> Enum.sum()
-				|> Kernel.-(8_728_348_608)
-				|> Bitwise.bxor(177_451_812)
+				|> Kernel.-(87_2834_8608)
+				|> Bitwise.bxor(1_7745_1812)
 		end
 	end
 end
