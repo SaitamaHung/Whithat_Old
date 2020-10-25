@@ -1,3 +1,12 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# This File if From Theopse (Self@theopse.org)
+# Licensed under BSD-2-Caluse
+# File:	bilibili.ex (Whithat/Library/Video/bilibili.ex)
+# Content:	Library About Bilibili (www.bilibili.com)
+# Copyright (c) 2020 Theopse Organization All rights reserved
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
 defmodule Whithat.Video.BiliBili do
 	@moduledoc """
 	BiliBili's API
