@@ -14,8 +14,8 @@
 
 ## 编译
 
-- Erlang/otp >= 22
-- Elixir >= 1.10.2
+- Erlang/otp >= 20
+- Elixir >= 1.10
 
 #### 通过Escript
 
