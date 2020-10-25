@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/github/license/Theopse/Whithat)](https://choosealicense.com/licenses/bsd-2-clause/)
 [![Build Status](https://travis-ci.org/Theopse/Whithat.svg?branch=Experimental)](https://travis-ci.org/Theopse/Whithat)
-[![GitHub repo size](https://img.shields.io/github/repo-size/Theopse/Whithat)](https://github.com/Theopse/Whithat)
+[![GitHub repo size](https://img.shields.io/github/repo-size/Theopse/Whithat)](https://github.com/Theopse/Whithat/tree/Development)
 
 暂时是个B站视频下载器，使用了[Httpoison](https://github.com/edgurgel/httpoison)
 
