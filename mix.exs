@@ -1,3 +1,11 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# This File if From Theopse (Self@theopse.org)
+# Licensed under BSD-2-Caluse
+# File:	mix.exs (Whithat/mix.exs)
+# Content:	Whithat's Project Config File
+# Copyright (c) 2020 Theopse Organization All rights reserved
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
 defmodule Whithat.MixProject do
 	use Mix.Project
 
