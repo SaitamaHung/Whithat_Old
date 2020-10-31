@@ -17,7 +17,7 @@ defmodule Whithat.MixProject do
 			deps_path: "Include",
 			start_permanent: Mix.env() == :prod,
 			deps: deps(),
-			#compilers: [:make, :elixir, :app],
+			# compilers: [:make, :elixir, :app],
 			escript: escript()
 		]
 	end

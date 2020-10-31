@@ -226,7 +226,7 @@ defmodule Whithat do
 									|> case do
 										down ->
 											IO.puts(
-												"Quality: #{
+												"Target Quality: #{
 													item
 													|> case do
 														"116" -> "1080P60"
@@ -264,9 +264,8 @@ defmodule Whithat do
 													parts
 													|> Enum.map(fn part ->
 														part
-														|> elem(0)
 														|> case do
-															cid ->
+															{cid, _, _} ->
 																aid
 																|> Whithat.Video.BiliBili.getLinks(
 																	cid,
@@ -277,7 +276,13 @@ defmodule Whithat do
 													end)
 													|> case do
 														links ->
-															{links, parts |> Enum.map(&elem(&1, 2))}
+															{links,
+															 parts
+															 |> Enum.map(
+																 &case(&1) do
+																	 {_, _, part} -> part
+																 end
+															 )}
 													end
 											end
 											|> case do
@@ -316,9 +321,11 @@ defmodule Whithat do
 					end
 			end
 			|> case do
-				0 -> 0
+				0 ->
+					0
+
 				1 ->
-					IO.puts(IO.ANSI.red <> "No Enough Arguments!" <> IO.ANSI.default_color)
+					IO.puts(IO.ANSI.red() <> "No Enough Arguments!" <> IO.ANSI.default_color())
 					1
 			end
 			|> System.halt()

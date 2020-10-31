@@ -6,7 +6,6 @@
 # Copyright (c) 2020 Theopse Organization All rights reserved
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-
 defmodule Whithat.Video.BiliBili do
 	@moduledoc """
 	BiliBili's API
@@ -22,19 +21,19 @@ defmodule Whithat.Video.BiliBili do
 	"""
 
 	@type biliInfo :: %{
-		binary() => integer(),
-		binary() => %{
-			binary() => integer(),
-			binary() => integer(),
-			binary() => integer()
-		},
-		binary() => integer(),
-		binary() => binary(),
-		binary() => integer(),
-		binary() => binary(),
-		binary() => binary(),
-		binary() => binary()
-	}
+					binary() => integer(),
+					binary() => %{
+						binary() => integer(),
+						binary() => integer(),
+						binary() => integer()
+					},
+					binary() => integer(),
+					binary() => binary(),
+					binary() => integer(),
+					binary() => binary(),
+					binary() => binary(),
+					binary() => binary()
+				}
 
 	@spec get_links_in_private(integer() | binary(), integer() | binary(), integer() | binary()) ::
 					[binary()] | :error
@@ -322,4 +321,59 @@ defmodule Whithat.Video.BiliBili do
 	"""
 	@spec getCover(:aid | :bvid, binary()) :: :error | binary()
 	def getCover(atom, number), do: get_cover(atom, number)
+
+	@doc """
+	Using Public API to get video's Current Quality, needing sessdata.
+
+	"""
+	@spec get_current_quality(
+					integer() | binary(),
+					integer() | binary(),
+					integer() | binary(),
+					binary()
+				) ::
+					:error | integer()
+	def get_current_quality(aid, cid, quality, sessdata) do
+		"https://api.bilibili.com/x/player/playurl?cid=#{cid}&avid=#{aid}&qn=#{quality}"
+		|> HTTPoison.get(
+			[
+				"User-Agent":
+					"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:80.0) Gecko/20100101 Firefox/80.0",
+				Cookie: "SESSDATA=#{sessdata}",
+				Host: "api.bilibili.com"
+			],
+			ssl: [{:versions, [:"tlsv1.2", :"tlsv1.1", :tlsv1]}]
+		)
+		|> case do
+			{:ok, %HTTPoison.Response{body: body}} ->
+				body
+				|> Jason.decode()
+				|> case do
+					{:ok, json} ->
+						json
+						|> Access.get("data")
+						|> Access.get("quality")
+
+					{:error, %Jason.DecodeError{}} ->
+						:error
+				end
+
+			{:error, %HTTPoison.Error{}} ->
+				:error
+		end
+	end
+
+	@doc """
+	Using Public API to get video's Current Quality, needing sessdata.
+
+	"""
+	@spec getCurrentQuality(
+					integer() | binary(),
+					integer() | binary(),
+					integer() | binary(),
+					binary()
+				) ::
+					:error | integer()
+	def getCurrentQuality(aid, cid, quality, sessdata),
+		do: get_current_quality(aid, cid, quality, sessdata)
 end
