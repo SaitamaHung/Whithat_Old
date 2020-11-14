@@ -221,6 +221,10 @@ defmodule Whithat do
 
 														(i + 1) in enum
 													end)
+													|> Enum.map(&case(&1) do
+														{item, _} ->
+															item
+													end)
 											end
 									end
 									|> case do
