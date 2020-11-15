@@ -122,25 +122,22 @@ defmodule Whithat do
 					download(item, aid, title <> " --#{subtitle}")
 				end)
 
-		defp download(part, aid, title) do
-			part
-			|> case do
-				[link] ->
-					link
-					|> streamDownload(aid, title)
-					|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")}.flv"))
-					|> Stream.run()
+		defp download([link], aid, title) do
+			link
+			|> streamDownload(aid, title)
+			|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")}.flv"))
+			|> Stream.run()
+		end
 
-				links ->
-					links
-					|> Enum.with_index()
-					|> Enum.each(fn {item, i} ->
-						item
-						|> streamDownload(aid, title <> " \##{i + 1}.flv")
-						|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")} \##{i + 1}.flv"))
-						|> Stream.run()
-					end)
-			end
+		defp download(links, aid, title) do
+			links
+			|> Enum.with_index()
+			|> Enum.each(fn {item, i} ->
+				item
+				|> streamDownload(aid, title <> " \##{i + 1}.flv")
+				|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")} \##{i + 1}.flv"))
+				|> Stream.run()
+			end)
 		end
 
 		@spec main() :: no_return()
@@ -221,10 +218,12 @@ defmodule Whithat do
 
 														(i + 1) in enum
 													end)
-													|> Enum.map(&case(&1) do
-														{item, _} ->
-															item
-													end)
+													|> Enum.map(
+														&case(&1) do
+															{item, _} ->
+																item
+														end
+													)
 											end
 									end
 									|> case do

@@ -344,24 +344,24 @@ defmodule Whithat.Video.BiliBili do
 			],
 			ssl: [{:versions, [:"tlsv1.2", :"tlsv1.1", :tlsv1]}]
 		)
+		|> get_current_quality()
+		end
+	end
+
+	defp get_current_quality({:ok, %HTTPoison.Response{body: body}}) do
+		body
+		|> Jason.decode()
 		|> case do
-			{:ok, %HTTPoison.Response{body: body}} ->
-				body
-				|> Jason.decode()
-				|> case do
-					{:ok, json} ->
-						json
-						|> Access.get("data")
-						|> Access.get("quality")
+			{:ok, json} ->
+				json
+				|> Access.get("data")
+				|> Access.get("quality")
 
-					{:error, %Jason.DecodeError{}} ->
-						:error
-				end
-
-			{:error, %HTTPoison.Error{}} ->
+			{:error, %Jason.DecodeError{}} ->
 				:error
 		end
 	end
+	defp get_current_quality{:error, %HTTPoison.Error{}}), do: :error
 
 	@doc """
 	Using Public API to get video's Current Quality, needing sessdata.
