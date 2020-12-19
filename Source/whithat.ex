@@ -1,5 +1,5 @@
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-# This File if From Theopse (Self@theopse.org)
+# This File is From Theopse (Self@theopse.org)
 # Licensed under BSD-2-Caluse
 # File:	whithat.ex (Whithat/Source/whithat.ex)
 # Content:	Whithat's Main(CLI) Source
@@ -140,11 +140,59 @@ defmodule Whithat do
 			end)
 		end
 
+		def __spawn__(map, owner, ref) do
+			receive do
+				{^owner, ^ref, :get, key} ->
+					send(owner, {self(), ref, map[key]})
+					__spawn__(map, owner, ref)
+				{^owner, ^ref, :set, key, value} ->
+					map
+					|> Map.has_key?(key)
+					|> case do
+						true ->
+							Map.replace(map, key, value)
+						false ->
+							Map.put_new(map, key, value)
+					end
+					|> case do
+						result ->
+							send(owner, {self(), ref, true})
+							__spawn__(result, owner, ref)
+					end
+			end
+		end
+
+		defp new_env do
+			ref = make_ref()
+			{:env, spawn(Whithat.CLI, :__spawn__, [Map.new, self(), ref]), ref}
+		end
+
+		defp env_get({:env, pid, ref}, key) do
+			self = self()
+			send(pid, {self(), ref, :get, key})
+			receive do
+				{^self, ^ref, result} ->
+					result
+			end
+
+		end
+
+		defp env_set({:env, pid, ref}, key, value) do
+			self = self()
+			send(pid, {self(), ref, :set, key, value})
+			receive do
+				{^self, ^ref, true} ->
+					true
+			end
+
+		end
+
 		@spec main() :: no_return()
 		@spec main([binary()]) :: no_return()
 		def main(args \\ [])
 
 		def main(args) when is_list(args) do
+			env = new_env()
 			args
 			# |> analyze	Before Next Version, Analyze won't be used
 			|> Enum.fetch(0)
@@ -215,6 +263,7 @@ defmodule Whithat do
 															"-- #{item["part"]}  Cid: #{item["cid"]}" <>
 																if((i + 1) in enum, do: " √", else: "")
 														)
+														#	env_set(env, "pages", true)
 
 														(i + 1) in enum
 													end)
