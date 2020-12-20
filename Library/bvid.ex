@@ -27,34 +27,61 @@ defmodule Whithat.Bvid do
 	"""
 	@spec encode(integer()) :: :error | <<_::16, _::_*8>>
 	def encode(aid) when is_integer(aid) do
-		for i <- 0..5, into: %{} do
-			[11, 10, 3, 8, 4, 6]
-			|> Enum.fetch(i)
-			|> case do
-				{:ok, item} ->
-					aid
-					|> Bitwise.bxor(1_7745_1812)
-					|> Kernel.+(87_2834_8608)
-					|> case do
-						num ->
-							"fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
-							|> String.at(
-								num
-								|> Kernel./(
-									:math.pow(58, i)
-									|> floor
-								)
-								|> floor
-								|> Integer.mod(58)
-							)
-							|> case do
-								string -> {item, string}
-							end
-					end
+		#for i <- 0..5, into: %{} do
+		#	[11, 10, 3, 8, 4, 6]
+		#	|> Enum.fetch(i)
+		#	|> case do
+		#		{:ok, item} ->
+		#			aid
+		#			|> Bitwise.bxor(1_7745_1812)
+		#			|> Kernel.+(87_2834_8608)
+		#			|> case do
+		#				num ->
+		#					"fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
+		#					|> String.at(
+		#						num
+		#						|> Kernel./(
+		#							:math.pow(58, i)
+		#							|> floor
+		#						)
+		#						|> floor
+		#						|> Integer.mod(58)
+		#					)
+		#					|> case do
+		#						string -> {item, string}
+		#					end
+		#			end
+		#
+		#		:error ->
+		#			:error
+		#	end
+		#end
+		# The Magic String
+		# You can see many Magic Item here as the origin auther hadn't give the expression
+		# about them when the code have been written
+		origin_magic_string = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'
 
-				:error ->
-					:error
-			end
+		index = [11, 10, 3, 8, 4, 6]
+
+		num = # The Magic Number
+			aid
+			|> Bitwise.bxor(1_7745_1812) # The Magic Number * 1
+			|> Kernel.+(87_2834_8608) # The Magic Number * 2
+
+		for {item, index} <- (index |> Enum.with_index), into: %{} do
+			string =
+				origin_magic_string
+				|> Enum.fetch!(
+					num
+					|> Kernel./(
+						:math.pow(58, index)
+						|> floor
+					)
+					|> floor
+					|> Integer.mod(58)
+				)
+
+			{item, string}
 		end
 		|> case do
 			origin ->
@@ -65,16 +92,16 @@ defmodule Whithat.Bvid do
 						2..11
 						|> Enum.map(fn
 							2 ->
-								1
+								?1
 
 							5 ->
-								4
+								?4
 
 							7 ->
-								1
+								?1
 
 							9 ->
-								7
+								?7
 
 							i ->
 								origin
@@ -90,7 +117,7 @@ defmodule Whithat.Bvid do
 
 					list ->
 						list
-						|> Enum.join()
+						|> String.Chars.List.to_string
 						|> case do
 							result ->
 								"BV"
@@ -120,8 +147,6 @@ defmodule Whithat.Bvid do
 		# The Magic String
 		# You can see many Magic Item here as the origin auther hadn't give the expression
 		# about them when the code have been written
-
-		# -spec origin_magic_string :: charlist()
 		origin_magic_string = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'
 
 		table =
