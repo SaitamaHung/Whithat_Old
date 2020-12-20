@@ -113,41 +113,6 @@ defmodule Whithat.Bvid do
 
 	"""
 
-	# Old Version
-	# @spec decode(<<_::16, _::_*8>>) :: :error | integer()
-	# def decode(bvid) when is_binary(bvid) do
-	#	for n <- 0..57, into: %{} do
-	#		"fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
-	#		|> String.at(n)
-	#		|> case do
-	#			value -> {value, n}
-	#		end
-	#	end
-	#	|> case do
-	#		tr ->
-	#			0..5
-	#			|> Enum.map(fn i ->
-	#				[11, 10, 3, 8, 4, 6]
-	#				|> Enum.fetch(i)
-	#				|> case do
-	#					{:ok, item} ->
-	#						tr
-	#						|> Access.get(
-	#							bvid
-	#							|> String.at(item)
-	#						)
-	#						|> Kernel.*(
-	#							:math.pow(58, i)
-	#							|> floor
-	#						)
-	#				end
-	#			end)
-	#			|> Enum.sum()
-	#			|> Kernel.-(87_2834_8608)
-	#			|> Bitwise.bxor(1_7745_1812)
-	#	end
-	#end
-
 	@spec decode(bvid) :: :error | integer() when
 		bvid: <<_::16, _::_*8>> | charlist()
 	def decode(bvid) when is_binary(bvid), do: bvid |> String.to_charlist |> decode
@@ -155,19 +120,14 @@ defmodule Whithat.Bvid do
 		# The Magic String
 		# You can see many Magic Item here as the origin auther hadn't give the expression
 		# about them when the code have been written
+
+		# -spec origin_magic_string :: charlist()
 		origin_magic_string = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'
 
 		table =
 			origin_magic_string
 			|> Enum.with_index
 			|> Map.new
-			#for i <- 0..57, into: %{} do
-			#	value =
-			#		origin_magic_string
-			#		|> Enum.fetch!(i)
-			#
-			#	{value, i}
-			#end
 
 		table
 		|> do_transform(bvid)
@@ -182,29 +142,13 @@ defmodule Whithat.Bvid do
 	#	Private SubFunction
 	# = = = = = = = = = = = = = = = = = = = = =
 
-	defp do_transform(table, bvid) when is_map(table) do
-		#locale = [9, 8, 1, 6, 2, 4]
-		#for i <- 0..5 do
-		#	now =
-		#		locale
-		#		|> Enum.fetch!(i)
-		#
-		#	table
-		#	|> Access.get(
-		#		bvid
-		#		|> String.at(now)
-		#	)
-		#	|> Kernel.*(
-		#		# Another Magic Number
-		#		:math.pow(58, i)
-		#		|> floor
-		#	)
-		#end
+	@spec do_transform(map(), charlist()) :: list(integer())
+	defp do_transform(table, bvid) when is_map(table), do:
 		bvid
 		|> Enum.with_index
 		|> iterated(table, [])
-	end
 
+	@spec iterated(list(), map(), list(integer())) :: list(integer())
 	defp iterated([], _, result), do: result
 	defp iterated([{head, 9} | tail], table, result), do: iterated(0, head, tail, table, result)
 	defp iterated([{head, 8} | tail], table, result), do: iterated(1, head, tail, table, result)
@@ -214,6 +158,7 @@ defmodule Whithat.Bvid do
 	defp iterated([{head, 4} | tail], table, result), do: iterated(5, head, tail, table, result)
 	defp iterated([_ | tail], table, result), do: tail |> iterated(table, result)
 
+	@spec iterated(integer(), char(), list(), map(), list()) :: list(integer())
 	defp iterated(i, head, tail, table, result) do
 		results =
 			table
