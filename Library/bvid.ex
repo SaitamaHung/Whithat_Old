@@ -13,6 +13,9 @@ defmodule Whithat.Bvid do
 
 	@doc """
 	Parse Aid to Bvid
+	(Bvid: https://www.bilibili.com/read/cv5167957)
+
+	(This Function is to be changed)
 
 	## Examples
 
@@ -99,6 +102,7 @@ defmodule Whithat.Bvid do
 
 	@doc """
 	Parse Bvid to Aid
+	(Bvid: https://www.bilibili.com/read/cv5167957)
 
 	## Examples
 
@@ -108,37 +112,118 @@ defmodule Whithat.Bvid do
 			795519616
 
 	"""
-	@spec decode(<<_::16, _::_*8>>) :: :error | integer()
-	def decode(bvid) when is_binary(bvid) do
-		for n <- 0..57, into: %{} do
-			"fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
-			|> String.at(n)
-			|> case do
-				value -> {value, n}
-			end
-		end
-		|> case do
-			tr ->
-				0..5
-				|> Enum.map(fn i ->
-					[11, 10, 3, 8, 4, 6]
-					|> Enum.fetch(i)
-					|> case do
-						{:ok, item} ->
-							tr
-							|> Access.get(
-								bvid
-								|> String.at(item)
-							)
-							|> Kernel.*(
-								:math.pow(58, i)
-								|> floor
-							)
-					end
-				end)
-				|> Enum.sum()
-				|> Kernel.-(87_2834_8608)
-				|> Bitwise.bxor(1_7745_1812)
-		end
+
+	# Old Version
+	# @spec decode(<<_::16, _::_*8>>) :: :error | integer()
+	# def decode(bvid) when is_binary(bvid) do
+	#	for n <- 0..57, into: %{} do
+	#		"fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
+	#		|> String.at(n)
+	#		|> case do
+	#			value -> {value, n}
+	#		end
+	#	end
+	#	|> case do
+	#		tr ->
+	#			0..5
+	#			|> Enum.map(fn i ->
+	#				[11, 10, 3, 8, 4, 6]
+	#				|> Enum.fetch(i)
+	#				|> case do
+	#					{:ok, item} ->
+	#						tr
+	#						|> Access.get(
+	#							bvid
+	#							|> String.at(item)
+	#						)
+	#						|> Kernel.*(
+	#							:math.pow(58, i)
+	#							|> floor
+	#						)
+	#				end
+	#			end)
+	#			|> Enum.sum()
+	#			|> Kernel.-(87_2834_8608)
+	#			|> Bitwise.bxor(1_7745_1812)
+	#	end
+	#end
+
+	@spec decode(bvid) :: :error | integer() when
+		bvid: <<_::16, _::_*8>> | charlist()
+	def decode(bvid) when is_binary(bvid), do: bvid |> String.to_charlist |> decode
+	def decode([?B, ?V | bvid]) when is_list(bvid) do
+		# The Magic String
+		# You can see many Magic Item here as the origin auther hadn't give the expression
+		# about them when the code have been written
+		origin_magic_string = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'
+
+		table =
+			origin_magic_string
+			|> Enum.with_index
+			|> Map.new
+			#for i <- 0..57, into: %{} do
+			#	value =
+			#		origin_magic_string
+			#		|> Enum.fetch!(i)
+			#
+			#	{value, i}
+			#end
+
+		table
+		|> do_transform(bvid)
+		|> Enum.sum
+		|> Kernel.-(87_2834_8608) # Magic Number * 1
+		|> Bitwise.bxor(1_7745_1812) # Magic Number * 2
 	end
+
+
+
+	# = = = = = = = = = = = = = = = = = = = = =
+	#	Private SubFunction
+	# = = = = = = = = = = = = = = = = = = = = =
+
+	defp do_transform(table, bvid) when is_map(table) do
+		#locale = [9, 8, 1, 6, 2, 4]
+		#for i <- 0..5 do
+		#	now =
+		#		locale
+		#		|> Enum.fetch!(i)
+		#
+		#	table
+		#	|> Access.get(
+		#		bvid
+		#		|> String.at(now)
+		#	)
+		#	|> Kernel.*(
+		#		# Another Magic Number
+		#		:math.pow(58, i)
+		#		|> floor
+		#	)
+		#end
+		bvid
+		|> Enum.with_index
+		|> iterated(table, [])
+	end
+
+	defp iterated([], _, result), do: result
+	defp iterated([{head, 9} | tail], table, result), do: iterated(0, head, tail, table, result)
+	defp iterated([{head, 8} | tail], table, result), do: iterated(1, head, tail, table, result)
+	defp iterated([{head, 1} | tail], table, result), do: iterated(2, head, tail, table, result)
+	defp iterated([{head, 6} | tail], table, result), do: iterated(3, head, tail, table, result)
+	defp iterated([{head, 2} | tail], table, result), do: iterated(4, head, tail, table, result)
+	defp iterated([{head, 4} | tail], table, result), do: iterated(5, head, tail, table, result)
+	defp iterated([_ | tail], table, result), do: tail |> iterated(table, result)
+
+	defp iterated(i, head, tail, table, result) do
+		results =
+			table
+			|> Access.get(head)
+			|> Kernel.*(
+				:math.pow(58, i)
+				|> floor
+			)
+
+		iterated(tail, table, [results | result])
+	end
+
 end
