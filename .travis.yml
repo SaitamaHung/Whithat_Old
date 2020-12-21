@@ -21,3 +21,6 @@ jobs:
       dist: "focal"
       elixir: "1.11"
       otp_release: "23.0"
+    - os: "freebsd"
+      elixir: "1.11"
+      otp_release: "23.0"
