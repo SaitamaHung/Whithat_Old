@@ -16,8 +16,6 @@ defmodule Whithat.Video.BiliBili do
 
   (Note: Up to 1080P.)
 
-  (Note: It seems not able to work)
-
   """
 
   @type biliInfo :: %{
@@ -38,8 +36,8 @@ defmodule Whithat.Video.BiliBili do
   @spec get_links_in_private(integer() | binary(), integer() | binary(), integer() | binary()) ::
           [binary()] | :error
   def get_links_in_private(aid, cid, quality) do
-    "rbMCKn@KuamXWlPMoJGsKcbiJKUfkPF_8dABscJntvqhRSETg"
-    |> String.to_charlist()
+    'rbMCKn@KuamXWlPMoJGsKcbiJKUfkPF_8dABscJntvqhRSETg'
+    |> Enum.reverse
     |> Enum.map(&(&1 + 2))
     |> to_string
     |> String.split(":")
