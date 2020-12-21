@@ -7,6 +7,13 @@
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 defmodule Whithat do
+
+	# /-/
+	defmacro return(expression), do: expression
+	defmacro begin(do: block), do: block
+
+
+	# QWQ
 	defmodule CLI do
 		@moduledoc """
 		Documentation for `Whithat`.
@@ -301,8 +308,17 @@ defmodule Whithat do
 											end)
 											|> case do
 												[{cid, _, _}] ->
-													aid
-													|> Whithat.Video.BiliBili.getLinks(cid, item, Whithat.Config.sessdata())
+													#aid
+													#|> Whithat.Video.BiliBili.getLinks(cid, item, Whithat.Config.sessdata())
+													Whithat.Config.sessdata
+													|> case do
+														"Put Your Sessdata Here" ->
+															aid
+															|> Whithat.Video.BiliBili.getLinksInPrivate(cid, item)
+														_ ->
+															aid
+															|> Whithat.Video.BiliBili.getLinks(cid, item, Whithat.Config.sessdata)
+													end
 
 												parts ->
 													parts
