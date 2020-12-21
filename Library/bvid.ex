@@ -25,37 +25,10 @@ defmodule Whithat.Bvid do
 			"BV1kC4y1W71T"
 
 	"""
+	import Whithat
+
 	@spec encode(integer()) :: :error | <<_::16, _::_*8>>
 	def encode(aid) when is_integer(aid) do
-		#for i <- 0..5, into: %{} do
-		#	[11, 10, 3, 8, 4, 6]
-		#	|> Enum.fetch(i)
-		#	|> case do
-		#		{:ok, item} ->
-		#			aid
-		#			|> Bitwise.bxor(1_7745_1812)
-		#			|> Kernel.+(87_2834_8608)
-		#			|> case do
-		#				num ->
-		#					"fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
-		#					|> String.at(
-		#						num
-		#						|> Kernel./(
-		#							:math.pow(58, i)
-		#							|> floor
-		#						)
-		#						|> floor
-		#						|> Integer.mod(58)
-		#					)
-		#					|> case do
-		#						string -> {item, string}
-		#					end
-		#			end
-		#
-		#		:error ->
-		#			:error
-		#	end
-		#end
 		# The Magic String
 		# You can see many Magic Item here as the origin auther hadn't give the expression
 		# about them when the code have been written
@@ -63,12 +36,15 @@ defmodule Whithat.Bvid do
 
 		index = [11, 10, 3, 8, 4, 6]
 
-		num = # The Magic Number
+		# The Magic Number
+		num =
 			aid
-			|> Bitwise.bxor(1_7745_1812) # The Magic Number * 1
-			|> Kernel.+(87_2834_8608) # The Magic Number * 2
+			# The Magic Number * 1
+			|> Bitwise.bxor(1_7745_1812)
+			# The Magic Number * 2
+			|> Kernel.+(87_2834_8608)
 
-		for {item, index} <- (index |> Enum.with_index), into: %{} do
+		for {item, index} <- index |> Enum.with_index(), into: %{} do
 			string =
 				origin_magic_string
 				|> Enum.fetch!(
@@ -116,13 +92,9 @@ defmodule Whithat.Bvid do
 						:error
 
 					list ->
-						list
-						|> String.Chars.List.to_string
-						|> case do
-							result ->
-								"BV"
-								|> Kernel.<>(result)
-						end
+						[?B, ?V | list]
+						|> String.Chars.List.to_string()
+						|> return
 				end
 		end
 	end
@@ -140,9 +112,10 @@ defmodule Whithat.Bvid do
 
 	"""
 
-	@spec decode(bvid) :: :error | integer() when
-		bvid: <<_::16, _::_*8>> | charlist()
-	def decode(bvid) when is_binary(bvid), do: bvid |> String.to_charlist |> decode
+	@spec decode(bvid) :: :error | integer()
+				when bvid: <<_::16, _::_*8>> | charlist()
+	def decode(bvid) when is_binary(bvid), do: bvid |> String.to_charlist() |> decode
+
 	def decode([?B, ?V | bvid]) when is_list(bvid) do
 		# The Magic String
 		# You can see many Magic Item here as the origin auther hadn't give the expression
@@ -151,27 +124,28 @@ defmodule Whithat.Bvid do
 
 		table =
 			origin_magic_string
-			|> Enum.with_index
-			|> Map.new
+			|> Enum.with_index()
+			|> Map.new()
 
 		table
 		|> do_transform(bvid)
-		|> Enum.sum
-		|> Kernel.-(87_2834_8608) # Magic Number * 1
-		|> Bitwise.bxor(1_7745_1812) # Magic Number * 2
+		|> Enum.sum()
+		# Magic Number * 1
+		|> Kernel.-(87_2834_8608)
+		# Magic Number * 2
+		|> Bitwise.bxor(1_7745_1812)
 	end
 
-
-
 	# = = = = = = = = = = = = = = = = = = = = =
-	#	Private SubFunction
+	# 	Private SubFunction
 	# = = = = = = = = = = = = = = = = = = = = =
 
 	@spec do_transform(map(), charlist()) :: list(integer())
-	defp do_transform(table, bvid) when is_map(table), do:
-		bvid
-		|> Enum.with_index
-		|> iterated(table, [])
+	defp do_transform(table, bvid) when is_map(table),
+		do:
+			bvid
+			|> Enum.with_index()
+			|> iterated(table, [])
 
 	@spec iterated(list(), map(), list(integer())) :: list(integer())
 	defp iterated([], _, result), do: result
@@ -195,5 +169,4 @@ defmodule Whithat.Bvid do
 
 		iterated(tail, table, [results | result])
 	end
-
 end
