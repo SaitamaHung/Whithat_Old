@@ -12,12 +12,14 @@ defmodule Whithat do
 	defmacro return(expression), do: expression
 	defmacro begin(do: block), do: block
 
+end
 
 	# QWQ
-	defmodule CLI do
+	defmodule Whithat.CLI do
 		@moduledoc """
 		Documentation for `Whithat`.
 		"""
+		import Whithat
 
 		defp streamDownload(link, aid, title) do
 			"https://api.bilibili.com/x/web-interface/view?aid=#{aid}"
@@ -121,29 +123,33 @@ defmodule Whithat do
 			end
 		end
 
-		defp download(parts, aid, title, subtitle),
+		defp download(parts, aid, title, subtitle, tmp_string),
 			do:
 				parts
 				|> Enum.zip(subtitle)
 				|> Enum.each(fn {item, subtitle} ->
-					download(item, aid, title <> " --#{subtitle}")
+					download(item, aid, title <> " --#{subtitle}", tmp_string)
 				end)
 
-		defp download([link], aid, title) do
+		defp download([link], aid, title, tmp_string) do
 			link
 			|> streamDownload(aid, title)
-			|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")}.flv"))
+			|> Stream.into(File.stream!("#{System.tmp_dir!}Whithat/#{tmp_string}/#{Regex.replace(~r/\//, title, ":")}.flv"))
 			|> Stream.run()
+			System.cmd("mv",["#{System.tmp_dir!}Whithat/#{tmp_string}/#{Regex.replace(~r/\//, title, ":")}.flv", "./"])
+			#File.rm!("#{System.tmp_dir!}Whithat/#{tmp_string}/#{Regex.replace(~r/\//, title, ":")}.flv")
 		end
 
-		defp download(links, aid, title) do
+		defp download(links, aid, title, tmp_string) do
 			links
 			|> Enum.with_index()
 			|> Enum.each(fn {item, i} ->
 				item
 				|> streamDownload(aid, title <> " \##{i + 1}.flv")
-				|> Stream.into(File.stream!("#{Regex.replace(~r/\//, title, ":")} \##{i + 1}.flv"))
+				|> Stream.into(File.stream!("#{System.tmp_dir!}Whithat/#{tmp_string}/#{Regex.replace(~r/\//, title, ":")} \##{i + 1}.flv"))
 				|> Stream.run()
+				System.cmd("mv", ["#{System.tmp_dir!}Whithat/#{tmp_string}/#{Regex.replace(~r/\//, title, ":")} \##{i + 1}.flv", "./"])
+				#File.rm!("#{System.tmp_dir!}Whithat/#{tmp_string}/#{Regex.replace(~r/\//, title, ":")}.flv")
 			end)
 		end
 
@@ -197,8 +203,23 @@ defmodule Whithat do
 		@spec main() :: no_return()
 		@spec main([binary()]) :: no_return()
 		def main(args \\ [])
+		def main(["clean"]) do
+			File.rmdir("#{System.tmp_dir!}Whithat/")
+		end
 
 		def main(args) when is_list(args) do
+			File.mkdir_p("#{System.tmp_dir!}Whithat/")
+			tmp_string = "#{NaiveDateTime.local_now |> Time.to_string |> String.split(":") |> Enum.join}#{begin do
+				num = ?0..?9
+				big = ?A..?Z
+				little = ?a..?z
+				[num, big, little]
+				|> Enum.take_random(Whithat.Config.random_directory_string_size)
+				|> Enum.map(&Enum.take_random(&1, 1))
+				|> List.flatten
+				|> to_string
+			end}"
+			File.mkdir_p("#{System.tmp_dir!}Whithat/#{tmp_string}/")
 			env = new_env()
 			args
 			# |> analyze	Before Next Version, Analyze won't be used
@@ -288,12 +309,16 @@ defmodule Whithat do
 												"Target Quality: #{
 													item
 													|> case do
+														"120" -> "4K"
 														"116" -> "1080P60"
 														"112" -> "1080P+"
 														"80" -> "1080P"
+														"74" -> "720P60"
 														"64" -> "720P"
+														"48" -> "720P"
 														"32" -> "480P"
 														"16" -> "360P"
+														_ -> "Unknown"
 													end
 												}"
 											)
@@ -372,10 +397,10 @@ defmodule Whithat do
 													mono
 													|> case do
 														{links, subtitle} ->
-															download(links, aid, title, subtitle)
+															download(links, aid, title, subtitle, tmp_string)
 
 														links ->
-															download(links, aid, title)
+															download(links, aid, title, tmp_string)
 													end
 											end
 
@@ -390,6 +415,7 @@ defmodule Whithat do
 			end
 			|> case do
 				0 ->
+					File.rmdir!("#{System.tmp_dir!}Whithat/#{tmp_string}/")
 					0
 
 				1 ->
@@ -399,4 +425,3 @@ defmodule Whithat do
 			|> System.halt()
 		end
 	end
-end
