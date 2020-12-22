@@ -9,6 +9,7 @@
 defmodule Whithat.Config do
 	def version, do: "Alpha 0.0.2"
 	def full_version, do: [build: 2]
-	def sessdata, do: "7c48c14f%2C1613485723%2Cb3235*81"
+	def sessdata, do: "Put Your Sessdata Here"
 	def ffmpeg, do: false
+	def random_directory_string_size, do: 9
 end
