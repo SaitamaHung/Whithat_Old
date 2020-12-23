@@ -200,12 +200,14 @@ end
 
 		end
 
-		@spec main() :: no_return()
+		#@spec main() :: no_return()
 		@spec main([binary()]) :: no_return()
-		def main(args \\ [])
+		#def main(args \\ [])
 		def main(["clean"]) do
 			File.rmdir("#{System.tmp_dir!}Whithat/")
 		end
+
+		#def main(["bangumi","ss"])
 
 		def main(args) when is_list(args) do
 			File.mkdir_p("#{System.tmp_dir!}Whithat/")
