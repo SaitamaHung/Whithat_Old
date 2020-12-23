@@ -12,6 +12,8 @@
 
 （旧版本因为疏忽附带Sessdata，如果实在需要可以自行提取，但不保证可用）
 
+（新版本修复了Private API的使用问题，可以不需要Sessdata获取链接）
+
 ## 编译
 
 - Erlang/otp >= 21
@@ -38,16 +40,21 @@ Bvid: B站的BV号，需要前缀
 
 Quality: 视频画质。
 
+- 120 -> 4K
 - 116 -> 1080P60
 - 112 -> 1080P+
 - 80 -> 1080P
+- 74 -> 720P60
 - 64 -> 720P
+- 48 -> 720P(MP4)
 - 32 -> 480P
 - 16 -> 360P
   
 Pages: 多P视频的页码。
 
 格式：1,2,3,4-6 -> [1,2,3,4,5,6]
+
+事例： ```Whithat 19381096 64 1-2``` [视频地址](https://www.bilibili.com/video/av19381096)
 
 请将Source/Config.ex中```def sessdata,do: "Put Your Sessdata Here"```后面的```"Put Your Sessdata Here"```替换成自己账号的Sessdata
 
@@ -69,6 +76,11 @@ Pages: 多P视频的页码。
 - 码风很诡异（没事反正能改（bushi）），我是一个坚定的tab党（Tab才是真正的道理！）
 - Readme的用词很......风趣（确信）（如果不行的话那我还是严肃得了QAQ）
 
+## 更新目标
+
+- 支持[A站](https://www.acfun.cn)
+- 重写main函数
+
 ## 下载
 
 由于暂时没达到目标
@@ -80,3 +92,7 @@ Pages: 多P视频的页码。
 说是个组织，结果各种问题之后，还是只有我一个人/-/
 
 行吧，一个人就一个人，这样也好（bushi）
+
+大致读了一下you-get的代码，基本上懂了如何在python中写（废话），看看哪天翻译到Elixir里吧
+
+不过这得先把main函数重写/-/
