@@ -10,6 +10,8 @@
 
 不提供Sessdata，请自备
 
+目前已可下载番剧
+
 （旧版本因为疏忽附带Sessdata，如果实在需要可以自行提取，但不保证可用）
 
 （新版本修复了Private API的使用问题，可以不需要Sessdata获取链接）
@@ -32,6 +34,7 @@ mix escript.install
 
 ```
 whithat aid/bvid quality [pages]
+whithat bangumi [ep/ss] ep/ss quality [pages]
 ```
 
 Aid：B站的AV号，不需要带前缀
