@@ -426,31 +426,23 @@ defmodule Whithat.Video.BiliBili do
 	def getCurrentQuality(aid, cid, quality, sessdata),
 		do: get_current_quality(aid, cid, quality, sessdata)
 
-	@spec get_bangumi_info(binary()) :: %{
-					name: binary(),
-					videoList: [
-						%{
-							:aid => integer() | binary(),
-							:cid => integer() | binary(),
-							:title => binary(),
-							:longTitle => binary()
-						}
-					]
-				}
+	@type bangumi_info ::	%{
+			                     name: binary(),
+			                     videoList: [
+				                     %{
+					                     :aid => integer() | binary(),
+					                     :cid => integer() | binary(),
+					                     :title => binary(),
+					                     :longTitle => binary()
+				                     }
+			                     ]
+		                     }
+
+	@spec get_bangumi_info(binary()) :: bangumi_info()
 	def get_bangumi_info(ep), do: get_bangumi_info(:ep, ep)
 	# def get_bangumi_info(ss), do: get_bangumi_info(:ss, ss)
 
-	@spec get_bangumi_info(:ep | :ss, binary()) :: %{
-					name: binary(),
-					videoList: [
-						%{
-							:aid => integer() | binary(),
-							:cid => integer() | binary(),
-							:title => binary(),
-							:longTitle => binary()
-						}
-					]
-				}
+	@spec get_bangumi_info(:ep | :ss, binary() | integer()) :: bangumi_info()
 	def get_bangumi_info(:ep, ep),
 		do: get_bangumi_info(:final, "https://www.bilibili.com/bangumi/play/ep#{ep}", nil)
 
