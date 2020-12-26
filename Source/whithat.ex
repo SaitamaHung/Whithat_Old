@@ -262,39 +262,37 @@ defmodule Whithat.CLI do
 		end)
 	end
 
-	# @spec main() :: no_return()
 	@spec main([binary()]) :: no_return()
-	# def main(args \\ [])
+
 	def main(["clean"]) do
 		File.rmdir("#{System.tmp_dir!()}Whithat/")
 	end
 
-	def main(["bangumi", ep, quality]), do: main(["bangumi", "ep", ep, quality])
-	def main(["bangumi", "ep", ep, quality]) do
-		info = Whithat.Video.BiliBili.get_bangumi_info(ep)
-		main(["bangumi", :final, info, quality])
-	end
-	def main(["bangumi", "ss", ss, quality]) do
-		info = Whithat.Video.BiliBili.get_bangumi_info(:ss, ss)
-		main(["bangumi", :final, info, quality])
-	end
-	def main(["bangumi", :final, info, quality]) do
+	# Bangumi
+
+	def main(["bangumi", "--ss", ss, quality]), do: main(["bangumi", "--ss", ss, quality, :all])
+	def main(["bangumi", ep, quality]), do: main(["bangumi", ep, quality, :all])
+	#def main(["bangumi", "ep", ep, quality]) do
+	#	info = Whithat.Video.BiliBili.get_bangumi_info(ep)
+	#	main(["bangumi", :final, info, quality])
+	#end
+	#	info = Whithat.Video.BiliBili.get_bangumi_info(:ss, ss)
+	#	main(["bangumi", :final, info, quality])
+	#end
+	#def main(["bangumi", :final, info, quality]) do
+	#	name = info[:name]
+	#
+	#	info
+	#	|> Access.get(:videoList)
+	#	|> bangumi_download(name, quality)
+	#end
+
+	def main(["bangumi", :final, info, quality, :all]) do
 		name = info[:name]
 
 		info
 		|> Access.get(:videoList)
 		|> bangumi_download(name, quality)
-	end
-
-	def main(["bangumi", ep, quality, pages]), do: main(["bangumi", "ep", ep, quality, pages])
-
-	def main(["bangumi", "ep", ep, quality, pages]) do
-		info = Whithat.Video.BiliBili.get_bangumi_info(ep)
-		main(["bangumi", :final, info, quality, pages])
-	end
-	def main(["bangumi", "ss", ss, quality, pages]) do
-		info = Whithat.Video.BiliBili.get_bangumi_info(:ss, ss)
-		main(["bangumi", :final, info, quality, pages])
 	end
 	def main(["bangumi", :final, info, quality, pages]) do
 		page = Theaserialzer.decode(pages)
@@ -310,6 +308,29 @@ defmodule Whithat.CLI do
 		|> Stream.map(fn {item, _} -> item end)
 		|> bangumi_download(name, quality)
 	end
+
+	def main(["bangumi", "--ss", ss, quality, pages | _]) do
+		info = Whithat.Video.BiliBili.get_bangumi_info(:ss, ss)
+		main(["bangumi", :final, info, quality, pages])
+	end
+	def main(["bangumi", ep, quality, pages | _]) do
+		# IO.inspect(ep)
+		info = Whithat.Video.BiliBili.get_bangumi_info(:ep, ep)
+		main(["bangumi", :final, info, quality, pages])
+	end
+
+	#def main(["bangumi", "ep", ep, quality, pages]) do
+	#	info = Whithat.Video.BiliBili.get_bangumi_info(ep)
+	#	main(["bangumi", :final, info, quality, pages])
+	#end
+
+	# Origin
+	
+	# def main([id, quality]), do: main([id, quality, :all])
+	
+	# def main([id, quality, pages]) do
+		
+	# end
 
 	def main(args) when is_list(args) do
 		File.mkdir_p("#{System.tmp_dir!()}Whithat/")
