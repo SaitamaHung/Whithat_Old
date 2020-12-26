@@ -237,17 +237,19 @@ defmodule Whithat.CLI do
 			links = Whithat.Video.BiliBili.get_links(aid, cid, quality, Whithat.Config.sessdata())
 
 			tmp_string =
-				"#{NaiveDateTime.local_now() |> Time.to_string() |> String.split(":") |> Enum.join()}#{
+				"#{NaiveDateTime.local_now() |> Time.to_string() |> String.split(":") |> Enum.join() |> Base.encode64(case: :lower)}#{
 					begin do
+						length = Whithat.Config.random_directory_string_size()
+						#:crypto.strong_rand_bytes(length) |> Base.url_encode64 |> binary_part(0, length)
 						num = ?0..?9
 						big = ?A..?Z
 						little = ?a..?z
 
 						[num, big, little]
-						|> Enum.take_random(Whithat.Config.random_directory_string_size())
-						|> Enum.map(&Enum.take_random(&1, 1))
-						|> List.flatten()
-						|> to_string
+						|> Stream.iterate(&(&1))
+						|> Stream.take(length)
+						|> Stream.map(&Enum.random/1)
+						|> Enum.map(&Enum.random/1)
 					end
 				}"
 
@@ -313,17 +315,19 @@ defmodule Whithat.CLI do
 		File.mkdir_p("#{System.tmp_dir!()}Whithat/")
 
 		tmp_string =
-			"#{NaiveDateTime.local_now() |> Time.to_string() |> String.split(":") |> Enum.join()}#{
+			"#{NaiveDateTime.local_now() |> Time.to_string() |> String.split(":") |> Enum.join() |> Base.encode64(case: :lower)}#{
 				begin do
+					length = Whithat.Config.random_directory_string_size
+
 					num = ?0..?9
 					big = ?A..?Z
 					little = ?a..?z
 
 					[num, big, little]
-					|> Enum.take_random(Whithat.Config.random_directory_string_size())
-					|> Enum.map(&Enum.take_random(&1, 1))
-					|> List.flatten()
-					|> to_string
+					|> Stream.iterate(&(&1))
+					|> Stream.take(length)
+					|> Stream.map(&Enum.random/1)
+					|> Enum.map(&Enum.random/1)
 				end
 			}"
 
