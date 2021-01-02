@@ -10,6 +10,23 @@ defmodule Whithat do
 	# /-/
 	defmacro return(expression), do: expression
 	defmacro begin(do: block), do: block
+
+	# Just for fun
+	# Theopse/Standard
+	@spec list?(any) :: {:__block__ | {:., [], [:erlang | :is_list, ...]}, [], [...]}
+	defguard list?(term) when is_list(term)
+
+	@spec tuple?(any) :: {:__block__ | {:., [], [:erlang | :is_tuple, ...]}, [], [...]}
+	defguard tuple?(term) when is_tuple(term)
+
+	@spec atom?(any) :: {:__block__ | {:., [], [:erlang | :is_atom, ...]}, [], [...]}
+	defguard atom?(term) when is_atom(term)
+
+	@spec binary?(any) :: {:__block__ | {:., [], [:erlang | :is_binary, ...]}, [], [...]}
+	defguard binary?(term) when is_binary(term)
+
+	@spec string?(any) :: {:__block__ | {:., [], [:erlang | :is_binary, ...]}, [], [...]}
+	defguard string?(term) when is_binary(term)
 end
 
 # QWQ
@@ -178,15 +195,7 @@ defmodule Whithat.CLI do
 				__spawn__(map, owner, ref)
 
 			{^owner, ^ref, :set, key, value} ->
-				map
-				|> Map.has_key?(key)
-				|> case do
-					true ->
-						Map.replace(map, key, value)
-
-					false ->
-						Map.put_new(map, key, value)
-				end
+				Map.put(map, key, value)
 				|> case do
 					result ->
 						send(owner, {self(), ref, true})
@@ -220,7 +229,7 @@ defmodule Whithat.CLI do
 		end
 	end
 
-	defp bangumi_download(video_list, name, quality) do
+	defp bangumi_download({video_list, name, quality}, tmp_string) do
 		IO.puts(
 			"[#{IO.ANSI.red()}Note#{IO.ANSI.default_color()}] \nThis Method is EAP Version. If There is Any Problems, Please let me now"
 		)
@@ -236,24 +245,30 @@ defmodule Whithat.CLI do
 
 			links = Whithat.Video.BiliBili.get_links(aid, cid, quality, Whithat.Config.sessdata())
 
-			tmp_string =
-				"#{NaiveDateTime.local_now() |> Time.to_string() |> String.split(":") |> Enum.join() |> Base.encode64(case: :lower)}#{
-					begin do
-						length = Whithat.Config.random_directory_string_size()
-						#:crypto.strong_rand_bytes(length) |> Base.url_encode64 |> binary_part(0, length)
-						num = ?0..?9
-						big = ?A..?Z
-						little = ?a..?z
+			# tmp_string =
+			# 	"#{
+			# 		NaiveDateTime.local_now()
+			# 		|> Time.to_string()
+			# 		|> String.split(":")
+			# 		|> Enum.join()
+			# 		|> Base.encode64(case: :lower)
+			# 	}#{
+			# 		begin do
+			# 			length = Whithat.Config.random_directory_string_size()
+			# 			# :crypto.strong_rand_bytes(length) |> Base.url_encode64 |> binary_part(0, length)
+			# 			num = ?0..?9
+			# 			big = ?A..?Z
+			# 			little = ?a..?z
 
-						[num, big, little]
-						|> Stream.iterate(&(&1))
-						|> Stream.take(length)
-						|> Stream.map(&Enum.random/1)
-						|> Enum.map(&Enum.random/1)
-					end
-				}"
+			# 			[num, big, little]
+			# 			|> Stream.iterate(& &1)
+			# 			|> Stream.take(length)
+			# 			|> Stream.map(&Enum.random/1)
+			# 			|> Enum.map(&Enum.random/1)
+			# 		end
+			# 	}"
 
-			File.mkdir_p("#{System.tmp_dir!()}Whithat/#{tmp_string}/")
+			# File.mkdir_p("#{System.tmp_dir!()}Whithat/#{tmp_string}/")
 
 			download(links, aid, "[#{name}]#{long_title} --#{title}", tmp_string)
 
@@ -262,90 +277,145 @@ defmodule Whithat.CLI do
 		end)
 	end
 
+	defp bangumi_info(args, otp) do
+		ss? =
+			otp
+			|> Access.get(:ss)
+
+		[id, quality | other] = args
+
+		pages =
+			other
+			|> case do
+				[pages | _] -> pages
+				[] -> :all
+			end
+
+		info = Whithat.Video.BiliBili.get_bangumi_info(if(ss?, do: :ss, else: :ep), id)
+
+		name = info[:name]
+
+		video_list =
+			if pages == :all do
+				info
+				|> Access.get(:videoList)
+			else
+				range = Theaserialzer.decode(pages)
+
+				info
+				|> Access.get(:videoList)
+				|> Stream.with_index()
+				|> Stream.filter(fn {_, index} ->
+					(index + 1) in range
+				end)
+				|> Stream.map(fn {item, _} -> item end)
+			end
+
+		{video_list, name, quality}
+	end
+
 	@spec main([binary()]) :: no_return()
 
 	def main(["clean"]) do
-		File.rmdir("#{System.tmp_dir!()}Whithat/")
+		System.cmd("rm",["-rf","#{System.tmp_dir!()}Whithat/"])
 	end
 
 	# Bangumi
 
-	def main(["bangumi", "--ss", ss, quality]), do: main(["bangumi", "--ss", ss, quality, :all])
-	def main(["bangumi", ep, quality]), do: main(["bangumi", ep, quality, :all])
-	#def main(["bangumi", "ep", ep, quality]) do
-	#	info = Whithat.Video.BiliBili.get_bangumi_info(ep)
-	#	main(["bangumi", :final, info, quality])
-	#end
-	#	info = Whithat.Video.BiliBili.get_bangumi_info(:ss, ss)
-	#	main(["bangumi", :final, info, quality])
-	#end
-	#def main(["bangumi", :final, info, quality]) do
-	#	name = info[:name]
-	#
-	#	info
-	#	|> Access.get(:videoList)
-	#	|> bangumi_download(name, quality)
-	#end
+	# def main(["bangumi", "--ss", ss, quality]), do: main(["bangumi", "--ss", ss, quality, :all])
+	# def main(["bangumi", ep, quality]), do: main(["bangumi", ep, quality, :all])
 
-	def main(["bangumi", :final, info, quality, :all]) do
-		name = info[:name]
+	def main(["bangumi" | args]) do
+		{opt, args, _error} =
+			args
+			|> OptionParser.parse(strict: [ss: :boolean])
 
-		info
-		|> Access.get(:videoList)
-		|> bangumi_download(name, quality)
-	end
-	def main(["bangumi", :final, info, quality, pages]) do
-		page = Theaserialzer.decode(pages)
+		tmp = make_tmp_folder()
 
-		name = info[:name]
-
-		info
-		|> Access.get(:videoList)
-		|> Stream.with_index()
-		|> Stream.filter(fn {_, index} ->
-			index+1 in page
-		end)
-		|> Stream.map(fn {item, _} -> item end)
-		|> bangumi_download(name, quality)
+		args
+		|> bangumi_info(opt)
+		|> bangumi_download(tmp)
+		|> System.halt()
 	end
 
-	def main(["bangumi", "--ss", ss, quality, pages | _]) do
-		info = Whithat.Video.BiliBili.get_bangumi_info(:ss, ss)
-		main(["bangumi", :final, info, quality, pages])
-	end
-	def main(["bangumi", ep, quality, pages | _]) do
-		# IO.inspect(ep)
-		info = Whithat.Video.BiliBili.get_bangumi_info(:ep, ep)
-		main(["bangumi", :final, info, quality, pages])
-	end
+	# def main(["bangumi", :final, info, quality, :all]) do
+	# 	name = info[:name]
 
-	#def main(["bangumi", "ep", ep, quality, pages]) do
-	#	info = Whithat.Video.BiliBili.get_bangumi_info(ep)
-	#	main(["bangumi", :final, info, quality, pages])
-	#end
+	# 	info
+	# 	|> Access.get(:videoList)
+	# 	|> bangumi_download(name, quality)
+	# end
+
+	# def main(["bangumi", :final, info, quality, pages]) do
+	# 	page = Theaserialzer.decode(pages)
+
+	# 	name = info[:name]
+
+	# 	info
+	# 	|> Access.get(:videoList)
+	# 	|> Stream.with_index()
+	# 	|> Stream.filter(fn {_, index} ->
+	# 		(index + 1) in page
+	# 	end)
+	# 	|> Stream.map(fn {item, _} -> item end)
+	# 	|> bangumi_download(name, quality)
+	# end
+
+	# def main(["bangumi", "--ss", ss, quality, pages | _]) do
+	# 	info = Whithat.Video.BiliBili.get_bangumi_info(:ss, ss)
+	# 	main(["bangumi", :final, info, quality, pages])
+	# end
+
+	# def main(["bangumi", ep, quality, pages | _]) do
+	# 	# IO.inspect(ep)
+	# 	info = Whithat.Video.BiliBili.get_bangumi_info(:ep, ep)
+	# 	main(["bangumi", :final, info, quality, pages])
+	# end
+
+	# def main(["bangumi", "ep", ep, quality, pages]) do
+	# 	info = Whithat.Video.BiliBili.get_bangumi_info(ep)
+	# 	main(["bangumi", :final, info, quality, pages])
+	# end
 
 	# Origin
-	
+
 	# def main([id, quality]), do: main([id, quality, :all])
-	
+
 	# def main([id, quality, pages]) do
-		
+	# 	cond do
+	# 		id =~ ~r/^BV/ ->
+	# 			bvid = id
+	# 			aid = Whithat.Bvid.decode(bvid)
+	# 			{aid, bvid}
+
+	# 		true ->
+	# 			aid = id
+	# 			bvid = Whithat.Bvid.encode(aid)
+	# 			{aid, bvid}
+	# 	end
+	# 	|> get_info(quality, pages)
 	# end
 
 	def main(args) when is_list(args) do
 		File.mkdir_p("#{System.tmp_dir!()}Whithat/")
 
 		tmp_string =
-			"#{NaiveDateTime.local_now() |> Time.to_string() |> String.split(":") |> Enum.join() |> Base.encode64(case: :lower)}#{
+			"#{
+				NaiveDateTime.local_now()
+				|> Time.to_string()
+				|> String.split(":")
+				|> Enum.join()
+				|> Base.encode64(case: :lower)
+			}#{
 				begin do
-					length = Whithat.Config.random_directory_string_size
+					length = Whithat.Config.random_directory_string_size()
 
 					num = ?0..?9
 					big = ?A..?Z
 					little = ?a..?z
 
 					[num, big, little]
-					|> Stream.iterate(&(&1))
+					|> Stream.iterate(& &1)
 					|> Stream.take(length)
 					|> Stream.map(&Enum.random/1)
 					|> Enum.map(&Enum.random/1)
@@ -569,5 +639,106 @@ defmodule Whithat.CLI do
 				1
 		end
 		|> System.halt()
+	end
+
+	#
+	#
+	#
+
+	defp make_tmp_folder() do
+		tmp_string =
+			"#{
+				NaiveDateTime.local_now()
+				|> Time.to_string()
+				|> String.split(":")
+				|> Enum.join()
+				|> Base.encode64(case: :lower)
+			}#{tmp_string(Whithat.Config.random_directory_string_size())}"
+
+		File.mkdir_p("#{System.tmp_dir!()}Whithat/#{tmp_string}/")
+
+		tmp_string
+	end
+
+	defp times(0, _), do: :ok
+
+	defp times(time, fun) do
+		fun.()
+		times(time - 1, fun)
+	end
+
+	defp tmp_string(len) do
+		range =
+			?0..?z
+			|> Enum.filter(&(&1 not in 58..64 and &1 not in 91..96))
+
+		1..len
+		|> Enum.map(fn _ ->
+			range
+			|> Enum.random
+		end)
+		|> to_string
+	end
+
+	defp get_info({aid, bvid}, quality, pages) do
+		[title: title, pages: video_list] = Whithat.Video.BiliBili.getInfo(aid)
+
+		IO.puts("Title: #{title}")
+
+		{:ok, agent} = Agent.start_link(fn -> false end)
+
+		filter_video_list =
+			video_list
+			|> check_single_pages(aid, bvid, agent, pages)
+
+		is_single = Agent.get(agent, & &1)
+	end
+
+	defp check_single_pages(list = [single | []], aid, bvid, _, _) do
+		cid =
+			single
+			|> Access.get("cid")
+
+		IO.puts("Aid: #{aid}  Bvid: #{bvid}  Cid: #{cid}")
+
+		list
+	end
+
+	defp check_single_pages(list, aid, bvid, agent, pages) do
+		agent
+		|> Agent.update(fn _ -> true end)
+
+		IO.puts("Aid: #{aid}  Bvid: #{bvid}")
+		IO.puts("Pages:")
+
+		range =
+			pages
+			|> case do
+				:all ->
+					"1-#{
+						list
+						|> :erlang.length()
+					}"
+
+				_ ->
+					pages
+			end
+			|> Theaserialzer.decode()
+
+		range
+		|> Enum.with_index()
+		|> Enum.filter(fn {item, i} ->
+			bool = (i + 1) in range
+
+			IO.puts(
+				"-- #{item["part"]}  Cid: #{item["cid"]}" <>
+					if(bool, do: " √", else: "")
+			)
+
+			# 	env_set(env, "pages", true)
+
+			bool
+		end)
+		|> Enum.map(fn {value, _} -> value end)
 	end
 end
