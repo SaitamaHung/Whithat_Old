@@ -11,6 +11,11 @@ defmodule Whithat do
 	defmacro return(expression), do: expression
 	defmacro begin(do: block), do: block
 
+	def tap(item, fun) do
+		fun.(item)
+		item
+	end
+
 	# Just for fun
 	# Theopse/Standard
 	@spec list?(any) :: {:__block__ | {:., [], [:erlang | :is_list, ...]}, [], [...]}
@@ -230,11 +235,12 @@ defmodule Whithat.CLI do
 	end
 
 	defp bangumi_download({video_list, name, quality}, tmp_string) do
-		IO.puts(
-			"[#{IO.ANSI.red()}Note#{IO.ANSI.default_color()}] \nThis Method is EAP Version. If There is Any Problems, Please let me now"
-		)
+		#IO.puts(
+		#	"[#{IO.ANSI.red()}Note#{IO.ANSI.default_color()}] \nThis Method is EAP Version. If There is Any Problems, Please let me now"
+		#)
 
-		IO.puts("(You need a sessdata since by using private api it won't return the links")
+		#IO.puts("(You need a sessdata since by using private api it won't return the links")
+
 
 		video_list
 		|> Enum.each(fn item ->
@@ -243,7 +249,36 @@ defmodule Whithat.CLI do
 			long_title = item[:longTitle]
 			title = item[:title]
 
-			links = Whithat.Video.BiliBili.get_links(aid, cid, quality, Whithat.Config.sessdata())
+		IO.puts(
+				"Target Quality: #{
+					quality
+					|> case do
+						"120" -> "4K"
+						"116" -> "1080P60"
+						"112" -> "1080P+"
+						"80" -> "1080P"
+						"74" -> "720P60"
+						"64" -> "720P"
+						"48" -> "720P"
+						"32" -> "480P"
+						"16" -> "360P"
+						_ -> "Unknown"
+					end
+				}"
+			)
+
+			format = [
+				bar: "=",
+				blank: "=",
+				left: "#{IO.ANSI.light_blue()}=",
+				right: "=#{IO.ANSI.default_color()}",
+				percent: false
+			]
+
+			ProgressBar.render(1, 1, format)
+
+		links = Whithat.Video.BiliBili.get_links(aid, cid, quality, Whithat.Config.sessdata())
+
 
 			# tmp_string =
 			# 	"#{
@@ -273,6 +308,7 @@ defmodule Whithat.CLI do
 			download(links, aid, "[#{name}]#{long_title} --#{title}", tmp_string)
 
 			File.rmdir!("#{System.tmp_dir!()}Whithat/#{tmp_string}/")
+			IO.puts("Downloaded Done!")
 			0
 		end)
 	end
@@ -295,6 +331,9 @@ defmodule Whithat.CLI do
 
 		name = info[:name]
 
+		IO.puts("Name: #{name}")
+		IO.puts("Pages:")
+
 		video_list =
 			if pages == :all do
 				info
@@ -305,7 +344,12 @@ defmodule Whithat.CLI do
 				info
 				|> Access.get(:videoList)
 				|> Stream.with_index()
-				|> Stream.filter(fn {_, index} ->
+				|> Enum.filter(fn {item, index} ->
+					IO.puts(
+						"--#{item[:title]} #{item[:longTitle]}  Aid: #{item[:aid]} Cid: #{item[:cid]}" <>
+						if((index + 1) in range, do: " √", else: "")
+					)
+
 					(index + 1) in range
 				end)
 				|> Stream.map(fn {item, _} -> item end)
